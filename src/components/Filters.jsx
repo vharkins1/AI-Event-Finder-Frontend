@@ -89,24 +89,24 @@ export default function Filters({ venues, state, onChange, onClear }) {
           </button>
 
           {/* free/images toggles inline and tiny */}
-          <label className="ml-1 inline-flex items-center gap-1.5 rounded-full bg-slate-900/60 px-2.5 py-1 text-xs ring-1 ring-white/10">
-            <input
-              type="checkbox"
-              className="accent-slate-200"
-              checked={state.freeOnly}
-              onChange={(e)=>set({ freeOnly: e.target.checked })}
-            />
-            <span className="text-slate-200">Free</span>
-          </label>
-          <label className="inline-flex items-center gap-1.5 rounded-full bg-slate-900/60 px-2.5 py-1 text-xs ring-1 ring-white/10">
-            <input
-              type="checkbox"
-              className="accent-slate-200"
-              checked={state.withImages}
-              onChange={(e)=>set({ withImages: e.target.checked })}
-            />
-            <span className="text-slate-200">Images</span>
-          </label>
+          <button
+  onClick={()=>set({ freeOnly: !state.freeOnly })}
+  className={`rounded-full px-3 py-1 text-xs font-medium ring-1 transition
+    ${state.freeOnly
+      ? "bg-blue-600/80 text-white ring-blue-400"
+      : "bg-slate-900/60 text-slate-200 ring-white/10 hover:bg-slate-800/60"}`}
+>
+  Free
+</button>
+<button
+  onClick={() => set({ withImages: !state.withImages })}
+  className={`rounded-full px-3 py-1 text-xs font-medium ring-1 transition
+    ${state.withImages
+      ? "bg-blue-600/80 text-white ring-blue-400"
+      : "bg-slate-900/60 text-slate-200 ring-white/10 hover:bg-slate-800/60"}`}
+>
+  Images
+</button>
         </div>
 
         {/* summary text, truncate */}
