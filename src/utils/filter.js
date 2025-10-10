@@ -1,3 +1,16 @@
+// Helper to parse event date strings, supporting YYYY-MM-DD as local midnight
+function parseEventDate(value) {
+  if (!value) return null;
+  // Match YYYY-MM-DD exactly
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (m) {
+    const [_, y, mo, d] = m;
+    return new Date(Number(y), Number(mo) - 1, Number(d));
+  }
+  // fallback: parse with Date constructor (handles ISO and other formats)
+  return new Date(value);
+}
+
 export function uniqueVenues(events) {
   const s = new Set();
   for (const e of events || []) if (e?.venue) s.add(e.venue.trim());
@@ -21,8 +34,8 @@ export function applyFilters(events, f) {
   } = f || {};
 
   const q = query.trim().toLowerCase();
-  const fromTs = dateFrom ? Date.parse(dateFrom) : NaN;
-  const toTs   = dateTo   ? Date.parse(dateTo)   : NaN;
+  const fromTs = dateFrom ? +parseEventDate(dateFrom) : NaN;
+  const toTs   = dateTo   ? +parseEventDate(dateTo)   : NaN;
   const today  = startOfTodayTs();
 
   return (events || []).filter(e => {
@@ -34,7 +47,8 @@ export function applyFilters(events, f) {
     if (venue && e?.venue !== venue) return false;
 
     // date
-    const t = Date.parse(e?.date || "");
+    const d = parseEventDate(e?.date || "");
+    const t = d ? +d : NaN;
     const hasDate = !isNaN(t);
 
     // auto-exclude past if no explicit date filter
@@ -50,14 +64,17 @@ export function applyFilters(events, f) {
 
     // free only
     if (freeOnly) {
-      const p = String(e?.price || "").toLowerCase();
-      const looksFree = p === "" || p === "$0" || p.includes("free");
+      const p = String(e?.price ?? "").trim().toLowerCase();
+      const looksFree = p === "" || p === "$0" || p === "0" || /\bfree\b/.test(p);
       if (!looksFree) return false;
     }
 
     // must have image
-    if (withImages && !e?.image) return false;
+    if (withImages && !(typeof e?.image === "string" && e.image.trim().length)) return false;
 
+    // passed all filters
     return true;
   });
 }
+
+export { parseEventDate };

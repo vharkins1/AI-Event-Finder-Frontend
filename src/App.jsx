@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import EventCard from "./components/EventCard";
 import Filters from "./components/Filters";
-import { uniqueVenues, applyFilters } from "./utils/filter";
+import { uniqueVenues, applyFilters, parseEventDate } from "./utils/filter";
 
 const SOURCES = ["/out/events.json", "/out/manifest.json"];
 
@@ -48,9 +48,11 @@ export default function App() {
     if (!events) return null;
     // sort by date; undated at end
     return [...events].sort((a, b) => {
-      const da = Date.parse(a?.date ?? "") || Infinity;
-      const db = Date.parse(b?.date ?? "") || Infinity;
-      return da - db;
+      const da = parseEventDate(a?.date ?? null);
+      const db = parseEventDate(b?.date ?? null);
+      const ta = da ? +da : Infinity;
+      const tb = db ? +db : Infinity;
+      return ta - tb;
     });
   }, [events]);
 
